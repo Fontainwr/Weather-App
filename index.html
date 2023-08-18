@@ -1,42 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, intial-scale=1.0">
-    <title>Fontain's  Weather App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fontain's Weather App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
         <div class="search">
-            <input type="text" placeholder="City Name?" spellcheck="false">
-            <button><img src="weather images/search.png"</button>
-    </div>
-    <div class="weather">
-        <img src="weather images/rain.png" class="weather-icon">
-        <h1 class="temp">22°C</h1>
-        <h2 class="city">Osaka, Japan</h2>
-        <div class="details">
-            <div class="col">
-                <img src="weather images/humidity.png">
-                <div>
-                    <p class="humidity">50%</p>
-                    <p>Humidity</p>
+            <input type="text" placeholder="City Name?" spellcheck="false" id="cityInput">
+            <button><img src="weather images/search.png" alt="Search"></button>
+        </div>
+        <div class="error">
+            <p>Invalid City name, please re-enter.</p>
+        </div>
+        <div class="weather" style="display: none;">
+            <img src="weather images/rain.png" class="weather-icon" alt="Weather Icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">Osaka, Japan</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="weather images/humidity.png" alt="Humidity Icon">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="weather images/wind.png" alt="Wind Icon">
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <img src="weather images/wind.png">
-                <div>
-                    <p class="wind">15 km/h</p>
-                    <p>Wind Speed</p>
-                </div>
-            </div>
-            
         </div>
     </div>
-</div>
 
+    <script>
+        const apiKey = "4bc346178ff846f9ecbc36c7cc20e56d";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
 
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+        const weatherIcon = document.querySelector(".weather-icon");
 
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+            const data = await response.json();
 
+            if(response.status == 404){
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            }else{
+                document.querySelector(".city").textContent = data.name + " :Location";
+            document.querySelector(".temp").textContent = Math.round(data.main.temp) + "°C";
+            document.querySelector(".humidity").textContent = data.main.humidity + "%";
+            document.querySelector(".wind").textContent = data.wind.speed + " km/h";
+
+            switch (data.weather[0].main.toLowerCase()) {
+                case "clouds":
+                    weatherIcon.src = "weather images/clouds.png";
+                    break;
+                case "clear":
+                    weatherIcon.src = "weather images/clear.png";
+                    break;
+                case "rain":
+                    weatherIcon.src = "weather images/rain.png";
+                    break;
+                case "drizzle":
+                    weatherIcon.src = "weather images/drizzle.png";
+                    break;
+                case "mist":
+                    weatherIcon.src = "weather images/mist.png";
+                    break;
+                default:
+                    weatherIcon.src = "weather images/default.png";
+            }
+
+            document.querySelector(".weather").style.display = "block";
+        }
+            }
+
+        searchBtn.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        });
+
+        // Detect Enter key press in the input field
+        const cityInput = document.getElementById("cityInput");
+        cityInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                checkWeather(cityInput.value);
+            }
+        });
+    </script>
 </body>
 </html>
